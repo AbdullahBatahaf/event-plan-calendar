@@ -4,6 +4,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from pathlib import Path
 import uvicorn
+from fastapi.responses import JSONResponse
 
 PORT = 8000
 
@@ -22,6 +23,10 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# for testing
+events = []
+
+
 # Mount static files
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
@@ -31,6 +36,57 @@ templates = Jinja2Templates(directory="templates")
 @app.get("/")
 async def root(request: Request):
     return templates.TemplateResponse("index.html", {"request": request})
+
+
+@app.get("/getEvents")
+async def get_events():
+    return JSONResponse(status_code=200, content={"success": True, "events": events})
+
+
+@app.get("/getEvents/month/{year}-{month}")
+async def get_events_by_month(year: int, month: int):
+    filtered_events = [event for event in events if event["date"].startswith(f"{year}-{month:02d}")]
+    if not filtered_events: 
+        return JSONResponse(status_code=404, content={"success": False, "message": "No events found for the given month"})
+    
+    return JSONResponse(status_code=200, content={"success": True, "events": filtered_events})
+
+
+
+@app.get("/getEvents/date/{date}")
+async def get_events_by_date(date: str):
+    filtered_events = [event for event in events if event["date"] == date]
+    if not filtered_events:
+        return JSONResponse(status_code=404, content={"success": False, "message": "No events found for the given date"})
+
+    return JSONResponse(status_code=200, content={"success": True, "events": filtered_events})
+
+
+@app.post("/addEvent")
+async def add_event(request: Request):
+    data = await request.json()
+    if data:
+        is_user_data = data.get("isUser")
+        title = data.get("title")
+        date = data.get("date")
+        description = data.get("description")
+        time = data.get("time")
+
+        if not date:
+            return JSONResponse(status_code=400, content={"success": False, "message": "Date is required"})
+
+        events.append({
+            "title": title,
+            "date": date,
+            "isUser": is_user_data,
+            "id": len(events) + 1,
+            "description": description,
+            "time": time
+        })
+
+        print(events)
+        
+        return JSONResponse(status_code=200, content={"success": True, "message": "Event added successfully"})
 
 @app.get("/health")
 async def health_check():
