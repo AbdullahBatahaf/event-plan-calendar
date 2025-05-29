@@ -16,10 +16,11 @@
 }
 
 .calendar-day {
+    cursor: pointer;
+    position: relative;
     background-color: white;
     min-height: 100px;
     padding: 5px;
-    position: relative;
 }
 
 
@@ -27,6 +28,17 @@
     text-align: center;
     font-size: 1.5rem;
     color: #007bff; 
+}
+
+.event-day::after {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    content: '•';
+    color: #000000;
+    font-size: 1.5rem;
+    text-align: center;
 }
 
 .event-button {

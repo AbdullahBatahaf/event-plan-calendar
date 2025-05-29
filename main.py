@@ -33,16 +33,17 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 # Templates
 templates = Jinja2Templates(directory="templates")
 
+# index page
 @app.get("/")
 async def root(request: Request):
     return templates.TemplateResponse("index.html", {"request": request})
 
-
+# get events
 @app.get("/getEvents")
 async def get_events():
     return JSONResponse(status_code=200, content={"success": True, "events": events})
 
-
+# get events by month
 @app.get("/getEvents/month/{year}-{month}")
 async def get_events_by_month(year: int, month: int):
     filtered_events = [event for event in events if event["date"].startswith(f"{year}-{month:02d}")]
@@ -51,8 +52,7 @@ async def get_events_by_month(year: int, month: int):
     
     return JSONResponse(status_code=200, content={"success": True, "events": filtered_events})
 
-
-
+# get events by date
 @app.get("/getEvents/date/{date}")
 async def get_events_by_date(date: str):
     filtered_events = [event for event in events if event["date"] == date]
@@ -61,7 +61,7 @@ async def get_events_by_date(date: str):
 
     return JSONResponse(status_code=200, content={"success": True, "events": filtered_events})
 
-
+# add event
 @app.post("/addEvent")
 async def add_event(request: Request):
     data = await request.json()
@@ -88,9 +88,11 @@ async def add_event(request: Request):
         
         return JSONResponse(status_code=200, content={"success": True, "message": "Event added successfully"})
 
-@app.get("/health")
-async def health_check():
-    return {"status": "healthy"} 
+@app.get("/event/{date}")
+async def event_page(date: str, request: Request):
+    filtered_events = [event for event in events if event['date'] == date]
+
+    return templates.TemplateResponse("event.html", {'request': request, "events": filtered_events})
 
 
 if __name__ == "__main__":

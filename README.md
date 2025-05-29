@@ -1,6 +1,6 @@
 # Event Plan Calendar
 
-A web application built with FastAPI for managing event plans and calendars.
+A web application built with FastAPI for managing event plans and form them in calendar.
 
 ## Setup
 

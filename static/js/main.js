@@ -77,7 +77,6 @@ async function renderCalendar(month, year) {
         events = data.events;
     }
 
-    const calenderHeader = document.getElementById('calendar-header');
     const calendar = document.getElementById('calendar');
     const firstDay = new Date(year, month, 1);
     const lastDay = new Date(year, month + 1, 0);
@@ -92,10 +91,18 @@ async function renderCalendar(month, year) {
     let dayCount = 1;
     for (let i = 0; i < 6; i++) {
         for (let j = 0; j < 7; j++) {
+            let dayEvents = null;
             const dayDiv = document.createElement('div');
             let planEvent = null;
             dayDiv.className = 'calendar-day';
             let isEvent = false;
+
+            let dayCountString = dayCount.toString();
+            if (dayCount < 10) {
+                dayCountString = `0${dayCount}`;
+            }
+            
+            dayEvents = events.filter(event => event.date == `${year}-${monthDate}-${dayCountString}`);
 
             if (i === 0 && j < startingDay) {
                 // Previous month days
@@ -108,33 +115,22 @@ async function renderCalendar(month, year) {
                 dayDiv.classList.add('other-month');
                 dayCount++;
             } else {
-                let dayCountString = dayCount.toString();
-                if (dayCount < 10) {
-                    dayCountString = `0${dayCount}`;
-                }
                 // Current month days
                 dayDiv.textContent = dayCount;
-                if (events.some(event => event.date == `${year}-${monthDate}-${dayCountString}`)) {
-                    planEvent = events.find(event => event.date == `${year}-${monthDate}-${dayCountString}`);
+                if (dayEvents.length > 0 && dayEvents != null) {
                     dayDiv.classList.add('event-day');
-                    const pointer = document.createElement('div');
-                    pointer.className = 'pointer';
-                    pointer.textContent = '•';
-                    dayDiv.appendChild(pointer);
-                    isEvent = true;
+                    // event button
+                    const button = document.createElement('button');
+                    button.className = 'event-button';
+                    button.onclick = () => {
+                        eventButtonHandler(dayEvents);
+                    }
+                    dayDiv.appendChild(button);
                 }
                 if (isToday(year, month, dayCount)) {
                     dayDiv.classList.add('today');
                 }
                 dayCount++;
-            }
-            if (isEvent) {
-                const button = document.createElement('button');
-                button.className = 'event-button';
-                button.onclick = () => {
-                    eventButtonHandler(planEvent);
-                }
-                dayDiv.appendChild(button);
             }
             calendar.appendChild(dayDiv);
         }
@@ -142,26 +138,9 @@ async function renderCalendar(month, year) {
 }
 
 function eventButtonHandler(planEvent) {
-    console.log(planEvent);
-    const eventContainer = document.createElement('div');
-    eventContainer.className = 'event-container';
-    const eventTitle = document.createElement('h3');
-    eventTitle.textContent = planEvent.title;
-    const eventDescription = document.createElement('p');
-    eventDescription.textContent = planEvent.description;
-    const eventTime = document.createElement('p');
-    eventTime.textContent = planEvent.time;
-    const eventClose = document.createElement('button');
-    eventClose.className = 'event-close';
-    eventClose.textContent = 'Close';
-    eventClose.onclick = () => {
-        document.body.removeChild(eventContainer);
-    }
-    eventContainer.appendChild(eventTitle);
-    eventContainer.appendChild(eventDescription);
-    eventContainer.appendChild(eventTime);
-    eventContainer.appendChild(eventClose);
-    document.body.appendChild(eventContainer);
+    // render event page
+    renderDate = planEvent[0].date.split('-').join('-');
+    window.location.href = `/event/${renderDate}`
 }
 
 function isToday(year, month, day) {

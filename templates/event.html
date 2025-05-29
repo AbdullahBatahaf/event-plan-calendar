@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Events</title>
+    <link rel="stylesheet" href="../static/css/eventPage.css">
+</head>
+<body>
+    <div class="event-container">  
+        <div class="event-header">
+            <h1>Events</h1>
+        </div>
+        <div class="event-body">
+                {% for event in events %}
+                <div class="event-item">
+                    <h1>{{ event.title }}</h1>
+                    {% if event.description %}
+                    <p>{{ event.description }}</p>
+                    {% endif %}
+
+                    {% if event.description == "" %}
+                        <p>No description</p>
+                    {% endif %}
+                    <div class="event-date">
+                        <p>{{ event.date }}</p>
+                        <p id="event-date-separator">|</p>
+                        <p>{{ event.time }}</p>
+                    </div>
+                </div>
+                {% endfor %}
+        </div>
+    </div>
+</body>
+</html>
